@@ -1,0 +1,26 @@
+<h1 id="h1">Network test server</h1>
+<script>
+  ;(function(){
+    throw new Error('BiDi Test error')
+    // console.log('zzz')
+  })()
+</script>
+<script>
+  // setTimeout(() => {
+    fetch('/data')
+      .then(response => {
+        if (!response.ok) { return { message: 'Network call failed'} }
+        return response.json()
+      })
+      .then(data => {
+        // console.log(data)
+        document.getElementById('h1').innerText = data.message
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      })
+    ;
+  // }, 3000)
+  // window.onload = function() {
+  // }
+</script>

@@ -1,0 +1,20 @@
+{
+  "name": "bidi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "server": "cd server && python3 -m http.server",
+    "test": "npx nightwatch ./mock-api.js --env chrome"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "chromedriver": "^98.0.1",
+    "nightwatch": "^2.0.8"
+  }
+}
