@@ -1,26 +1,34 @@
 describe('Getting console.logs and errors with webdriver bidirectional - ', function () {
-  beforeEach(async function(browser){
-    await browser.url('http://localhost:8000/');
-  })
+  
+  before(async function(){
+    browser.url('http://localhost:8000/');
+    this.cdpConnection = await browser.driver.createCDPConnection('page');
+    browser.assert.ok(this.cdpConnection._wsConnection && this.cdpConnection._wsConnection._url.startsWith('ws://'), `CDP connection is successful to: ${this.cdpConnection._wsConnection._url}`);
+  });
 
-  it('console.error', async function (browser) {
-    const cdpConnection = await browser.driver.createCDPConnection('page')
-    browser.assert.ok(cdpConnection._wsConnection && cdpConnection._wsConnection._url.startsWith('ws://'), `CDP connection is successful to: ${cdpConnection._wsConnection._url}`);
+  after(function() {
+    browser.end()
+  });
 
+  it('console.error', async function () {
     // debugger
-    await browser.driver.onLogException(cdpConnection, function (event) {
-      browser.assert.equal(event.exceptionDetails.exception.description.includes('BiDi Test error'), true)
+    const desc  = await browser.perform((callback) => {
+      browser.driver.onLogException(this.cdpConnection, function(event) {
+        callback(event.exceptionDetails.exception.description);
+      })
     })
+    browser.assert.equal(desc.includes('BiDi Test error'), true);
   })
 
-  it('console.log', async function (browser) {
-    const cdpConnection = await browser.driver.createCDPConnection('page')
-    browser.assert.ok(cdpConnection._wsConnection && cdpConnection._wsConnection._url.startsWith('ws://'), `CDP connection is successful to: ${cdpConnection._wsConnection._url}`);
+  it('console.log', function () {
+    
+    browser.perform(callback => {
+      browser.driver.onLogEvent(this.cdpConnection, function(event) {
+       browser.assert.equal(event['args'][0]['value'],'here');
+       callback();
+      });
+    });
 
-    await browser.driver.onLogEvent(cdpConnection, function (event) {
-      browser.assert.equal(event['args'][0]['value'], 'here')
-    })
-
-    await browser.driver.executeScript('console.log("here")')
+    browser.driver.executeScript('console.log("here")')
   });
 });
